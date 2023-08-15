@@ -1,0 +1,11 @@
+.TodoForm {
+  background-color: #1b1b1b;
+  padding: 2rem;
+  border-radius: 0.5rem;
+}
+
+.buttons-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

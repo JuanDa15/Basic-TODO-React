@@ -1,0 +1,14 @@
+li {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #575757;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.line-through {
+  text-decoration: line-through;
+}

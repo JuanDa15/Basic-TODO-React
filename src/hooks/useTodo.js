@@ -1,11 +1,10 @@
-import { createContext, useState } from "react";
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useState } from "react";
+import { useLocalStorage } from './useLocalStorage';
 
 
 const TODO_STORAGE_KEY = 'TODOS_V1'
-export const TodoContext = createContext();
 
-export function TodoProvider({ children }) {
+export function useTodos() {
   const [todos, updateTodos] = useLocalStorage(TODO_STORAGE_KEY, []);
   const [search, setSearch] = useState('')
   const addTodo = (description) => {
@@ -60,21 +59,17 @@ export function TodoProvider({ children }) {
   const completedTodos = searchedTodos.filter(todo => todo.isCompleted).length;
   const todosLength = searchedTodos.length;
 
-  return (
-    <TodoContext.Provider value={{
-      todos: searchedTodos,
-      addTodo,
-      toggleTodoStatus,
-      deleteTodo,
-      updateIsEditingStatus,
-      updateTodo,
-      completedTodos,
-      todosLength,
-      search,
-      setSearch
-    }}>
-      {children}
-    </TodoContext.Provider>
-  );
+  return {
+    todos: searchedTodos,
+    addTodo,
+    toggleTodoStatus,
+    deleteTodo,
+    updateIsEditingStatus,
+    updateTodo,
+    completedTodos,
+    todosLength,
+    search,
+    setSearch
+  }
 
 }

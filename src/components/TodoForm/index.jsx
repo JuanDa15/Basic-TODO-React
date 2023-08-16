@@ -1,11 +1,6 @@
-import { useContext } from "react";
-import { ModalContext } from "../../context/ModalContext";
 import "./TodoForm.css";
-import { TodoContext } from "../../context/TodoContext";
 
-export default function TodoForm(){
-  const { toggleModal } = useContext(ModalContext);
-  const { addTodo } = useContext(TodoContext);
+export default function TodoForm({ addTodo, toggleModal }){
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = new FormData(e.target);

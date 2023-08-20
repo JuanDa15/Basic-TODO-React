@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useLocalStorage } from './useLocalStorage';
 
 
-const TODO_STORAGE_KEY = 'TODOS_V1'
+export const TODO_STORAGE_KEY = 'TODOS_V1'
 
 export function useTodos() {
-  const [todos, updateTodos] = useLocalStorage(TODO_STORAGE_KEY, []);
+  const [todos, updateTodos, loading, error, syncValue] = useLocalStorage(TODO_STORAGE_KEY, []);
   const [search, setSearch] = useState('')
   const addTodo = (description) => {
     const body = {
@@ -69,7 +69,10 @@ export function useTodos() {
     completedTodos,
     todosLength,
     search,
-    setSearch
+    setSearch,
+    loading, 
+    error,
+    syncValue
   }
 
 }

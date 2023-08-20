@@ -8,7 +8,10 @@ import Modal from '../components/Modal'
 import TodoForm from '../components/TodoForm'
 import { useModal } from './../hooks/useModal'
 import { useTodos } from './../hooks/useTodo'
-
+import TodoError from '../components/TodoError'
+import TodoLoading from '../components/TodoLoading'
+import EmptyTodo from '../components/EmptyTodos'
+import { ChangeAlertWithStorageListener } from '../components/StorageChangeAlert/ChangeAlert'
 export default function App() {
   const { 
     isOpen, 
@@ -24,7 +27,10 @@ export default function App() {
     todosLength,
     addTodo,
     search, 
-    setSearch
+    setSearch,
+    loading,
+    error,
+    syncValue
   } = useTodos()
 
   return (
@@ -33,7 +39,7 @@ export default function App() {
       minHeight: '100vh',
       minWidth: '500px'
     }}>
-      <TodoHeader>
+      <TodoHeader loading={loading}>
         <TodoCounter 
           total={todosLength} 
           completed={completedTodos}
@@ -43,10 +49,20 @@ export default function App() {
           setSearch={setSearch}
         />
       </TodoHeader>
-      <TodoList>
-        {
-          todos.map(todo => (
-            <TodoItem 
+      <TodoList
+        search={ search } 
+        todosLength={todosLength}
+        error={ error }
+        loading={ loading }
+        todos={todos}
+        onError={ error => <TodoError error={error} />}
+        onLoading={ () => <TodoLoading /> }
+        onEmptyTodos={ (message) => <EmptyTodo message={message}/>}
+        render=''
+      >
+      {
+        todo => (
+          <TodoItem 
               key={todo.id} 
               todo={todo} 
               toggleStatus={toggleTodoStatus}
@@ -54,8 +70,8 @@ export default function App() {
               onEditing={updateIsEditingStatus}
               onUpdateTodo={updateTodo}
             />
-          ))
-        }
+        )
+      }
       </TodoList>
       <TodoAdd
         openModal={isOpen}
@@ -67,6 +83,8 @@ export default function App() {
           <TodoForm addTodo={addTodo} toggleModal={toggleModal}/>
         </Modal>
       }
+
+      <ChangeAlertWithStorageListener sync={syncValue}/>
     </div>
   )
 }

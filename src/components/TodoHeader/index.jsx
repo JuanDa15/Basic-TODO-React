@@ -1,7 +1,14 @@
-export default function TodoHeader({ children }) {
+import { Children, cloneElement } from "react";
+
+export default function TodoHeader({ children, loading }) {
   return (
     <header>
-      { children }
+      { 
+        Children.toArray(children)
+          .map(child => cloneElement(child, {
+            loading
+          }))
+      }
     </header>
   );
 

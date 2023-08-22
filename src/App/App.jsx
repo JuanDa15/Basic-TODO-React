@@ -30,7 +30,7 @@ export default function App() {
     setSearch,
     loading,
     error,
-    syncValue
+    onSync
   } = useTodos()
 
   return (
@@ -84,7 +84,7 @@ export default function App() {
         </Modal>
       }
 
-      <ChangeAlertWithStorageListener sync={syncValue}/>
+      <ChangeAlertWithStorageListener sync={onSync}/>
     </div>
   )
 }

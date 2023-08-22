@@ -1,10 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
+import { initialState, localStorageActionTypes, localStorageReducer } from "../reducers/localstorage-reducer";
 
 export function useLocalStorage(key, initialValue) {
-  const [sync, setSync] = useState(true);
-  const [storedValue,setStoredValue] = useState(initialValue);
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState(false);
+  const [state, dispatch] = useReducer(
+    localStorageReducer, initialState(initialValue)
+  )
+  const { sync, storedValue, loading, error } = state;
+ 
+  const onSuccess = (parsedItem) => {
+    dispatch({
+      type: localStorageActionTypes.success,
+      payload: parsedItem
+    })
+  }
+
+  const onError = (error) => {
+    dispatch({
+      type: localStorageActionTypes.error,
+      payload: error
+    })
+  }
+
+  const onUpdate = (item) => {
+    localStorage.setItem(key,JSON.stringify(item));
+    dispatch({
+      type: localStorageActionTypes.update,
+      payload: item
+    })
+  }
+
+  const onSync = () => {
+    dispatch({ type: localStorageActionTypes.sincronize })
+  }
 
   useEffect( ()=>{
     setTimeout(()=>{
@@ -17,28 +44,19 @@ export function useLocalStorage(key, initialValue) {
           parsedItem = initialValue;
         } else {
           parsedItem = JSON.parse(localStorageItem);
-          setStoredValue(parsedItem);
         }
-        setLoading(false);
-        setError(null)
-        setSync(true)
+        onSuccess(parsedItem);
       } catch (error) {
-        setLoading(false);
-        setError(error);
-        setSync(false)
+        onError(error)
       } 
     },800);
   },[sync]);
-  
-  const updateValue = (newItem) => {
-    localStorage.setItem(key,JSON.stringify(newItem));
-    setStoredValue(newItem);
-  }
 
-  const syncValue = () => {
-    setLoading(true);
-    setSync(false);
+  return {
+    storedValue, 
+    loading, 
+    onSync,
+    error, 
+    onUpdate
   }
-
-  return [storedValue, updateValue, loading, error, syncValue]
 }

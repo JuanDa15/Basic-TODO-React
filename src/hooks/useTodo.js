@@ -1,62 +1,97 @@
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useLocalStorage } from './useLocalStorage';
+import { todoInitialState, todoReducer, todoReducerActionTypes } from "../reducers/todo-reducer";
 
 
 export const TODO_STORAGE_KEY = 'TODOS_V1'
 
 export function useTodos() {
-  const [todos, updateTodos, loading, error, syncValue] = useLocalStorage(TODO_STORAGE_KEY, []);
-  const [search, setSearch] = useState('')
+  
+  const {
+    storedValue, 
+    loading, 
+    error,
+    onUpdate, 
+    onSync
+  } = useLocalStorage(TODO_STORAGE_KEY, []);
+  
+  const [state, dispatch] = useReducer(todoReducer, todoInitialState(storedValue));
+
+  const { todos, search } = state;
+  
+  useEffect(() => {
+    dispatch({
+      type: todoReducerActionTypes.refresh,
+      payload: storedValue
+    })
+  },[storedValue])
+
   const addTodo = (description) => {
-    const body = {
-      description: description,
-      isCompleted: false,
-      isEditing: false,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toLocaleString(),
-      updatedAt: new Date().toLocaleString()
-    }
-
-    const exist = todos.find(todo => todo.id === body.id);
-    if (exist) {
-      return;
-    }
-
-    updateTodos([...todos, body]);
+    dispatch({
+      type: todoReducerActionTypes.add,
+      payload: {
+        description,
+        onUpdate
+      }
+    })
   }
 
   const toggleTodoStatus = (id) => {
-    const todoPosition = todos.findIndex(todo => todo.id === id);
-    const todosCopy = structuredClone(todos);
-    if (todoPosition === -1) return;
-
-    todosCopy[todoPosition]['isCompleted'] = !todosCopy[todoPosition]['isCompleted'];
-    todosCopy[todoPosition]['updatedAt'] = new Date().toLocaleString();
-    updateTodos([...todosCopy])
+    dispatch({
+      type: todoReducerActionTypes.toggleStatus,
+      payload: {
+        id,
+        onUpdate
+      }
+    })
   }
   
   const deleteTodo = (id) => {
-    const updatedTodos = todos.filter(todo => todo.id !== id);
-    updateTodos([...updatedTodos]);
+    dispatch({
+      type: todoReducerActionTypes.delete,
+      payload: {
+        id,
+        onUpdate
+      }
+    })
   }
 
   const updateIsEditingStatus = (id) => {
-    const position = todos.findIndex(todo => todo.id === id);
-    const todosCopy = structuredClone(todos);
-    todosCopy[position]['isEditing'] = !todosCopy[position]['isEditing'];
-    updateTodos([...todosCopy])
+    dispatch({
+      type: todoReducerActionTypes.updateEditingStatus,
+      payload: {
+        id,
+        onUpdate
+      }
+    })
   }
 
   const updateTodo = (id, description) => {
-    const position = todos.findIndex(todo => todo.id === id);
-    const todosCopy = structuredClone(todos);
-    todosCopy[position]['description'] = description;
-    todosCopy[position]['isEditing'] = false;
-    todosCopy[position]['updatedAt'] = new Date().toLocaleString();
-    updateTodos([...todosCopy])
+    dispatch({
+      type: todoReducerActionTypes.update,
+      payload: {
+        id, description, onUpdate
+      }
+    })
   }
-  const searchedTodos = todos.filter(todo => todo.description.toLowerCase().includes(search.toLowerCase()))
-  const completedTodos = searchedTodos.filter(todo => todo.isCompleted).length;
+
+  const setSearch = (search) => {
+    dispatch({
+      type: todoReducerActionTypes.setSearch,
+      payload: search
+    })
+  }
+
+  const searchedTodos = todos.filter(
+    todo => todo.description.toLowerCase().includes(
+      search.toLowerCase()
+    )
+  )
+
+  const completedTodos = searchedTodos.filter(
+    todo => todo.isCompleted
+  ).length;
+  
   const todosLength = searchedTodos.length;
 
   return {
@@ -72,7 +107,7 @@ export function useTodos() {
     setSearch,
     loading, 
     error,
-    syncValue
+    onSync
   }
 
 }

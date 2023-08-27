@@ -1,8 +1,8 @@
 import { AddICon } from "../Icons/icons";
 import './TodoAdd.css';
-export default function TodoAdd({isOpen, toggleModal}) {
+export default function TodoAdd({ action }) {
   return (
-    <button className="add-btn" onClick={ toggleModal } >
+    <button className="add-btn" onClick={ action } >
       <AddICon />
     </button>
   );

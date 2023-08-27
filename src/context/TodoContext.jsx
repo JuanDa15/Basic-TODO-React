@@ -6,8 +6,9 @@ const TODO_STORAGE_KEY = 'TODOS_V1'
 export const TodoContext = createContext();
 
 export function TodoProvider({ children }) {
-  const [todos, updateTodos] = useLocalStorage(TODO_STORAGE_KEY, []);
+  const [todos, updateTodos, loading, error] = useLocalStorage(TODO_STORAGE_KEY, []);
   const [search, setSearch] = useState('')
+  
   const addTodo = (description) => {
     const body = {
       description: description,
@@ -41,13 +42,6 @@ export function TodoProvider({ children }) {
     updateTodos([...updatedTodos]);
   }
 
-  const updateIsEditingStatus = (id) => {
-    const position = todos.findIndex(todo => todo.id === id);
-    const todosCopy = structuredClone(todos);
-    todosCopy[position]['isEditing'] = !todosCopy[position]['isEditing'];
-    updateTodos([...todosCopy])
-  }
-
   const updateTodo = (id, description) => {
     const position = todos.findIndex(todo => todo.id === id);
     const todosCopy = structuredClone(todos);
@@ -55,6 +49,10 @@ export function TodoProvider({ children }) {
     todosCopy[position]['isEditing'] = false;
     todosCopy[position]['updatedAt'] = new Date().toLocaleString();
     updateTodos([...todosCopy])
+  }
+
+  const getTodo = (id) => {
+    return todos.find(todo => todo.id === id)
   }
   const searchedTodos = todos.filter(todo => todo.description.toLowerCase().includes(search.toLowerCase()))
   const completedTodos = searchedTodos.filter(todo => todo.isCompleted).length;
@@ -66,12 +64,14 @@ export function TodoProvider({ children }) {
       addTodo,
       toggleTodoStatus,
       deleteTodo,
-      updateIsEditingStatus,
       updateTodo,
       completedTodos,
       todosLength,
       search,
-      setSearch
+      setSearch,
+      getTodo,
+      loading,
+      error
     }}>
       {children}
     </TodoContext.Provider>
